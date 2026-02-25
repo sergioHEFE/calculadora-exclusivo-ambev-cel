@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora Exclusividade Ambev</title>
+
+<style>
+*{ box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    background: linear-gradient(135deg,#f4f4f4,#e9ecef);
+}
+
+.container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 20px;
+}
+
+h1{
+    text-align: center;
+    margin-bottom: 30px;
+}
+.card{
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+}
+
+h2{
+    margin-top: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+input[type="number"]{
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+label{
+    display: block;
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+button{
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background-color: #ffb300;
+    color: black;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover{
+    background-color: #ffa000;
+}
+
+.resultado{
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    margin-top: 20px;
+}
+
+.hidden{ display:none; }
+
+@media(max-width:600px){
+    h1{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>Calculadora Exclusividade | AMBEV</h1>
+
+<div class="card">
+<h2>Tipo de Cliente</h2>
+<label><input type="radio" name="tipoPDV" value="35" checked> PDV Core (R$ 35 por caixa)</label>
+<label><input type="radio" name="tipoPDV" value="65"> PDV High End (R$ 65 por caixa)</label>
+</div>
+
+
+<div class="card">
+<h2>Volumes em hL</h2>
+<div class="grid">
+<div>Caixa 600ml<input type="number" id="cx600"></div>
+<div>Caixa 1000ml<input type="number" id="cx1000"></div>
+<div>Caixa 350ml<input type="number" id="cx350"></div>
+<div>Caixa 330ml<input type="number" id="cx330"></div>
+<div>Caixa 300ml<input type="number" id="cx300"></div>
+</div>
+<label style="margin-top:10px;">
+<input type="checkbox" id="mensal"> Valores são mensais?
+</label>
+</div>
+
+<div id="investimentoTopo" 
+     style="background:#fff8e1;
+            padding:15px;
+            border-radius:10px;
+            margin-bottom:20px;
+            font-size:20px;
+            font-weight:bold;
+            text-align:center;">
+Investimento Total: R$ 0,00
+</div>
+
+<div class="card">
+<h2>Marca do Material</h2>
+<label><input type="radio" name="marca" value="brahma" checked onchange="toggleFlange()"> Brahma</label>
+<label><input type="radio" name="marca" value="skol" onchange="toggleFlange()"> Skol</label>
+<label><input type="radio" name="marca" value="bud" onchange="toggleFlange()"> Budweiser</label>
+</div>
+
+<div class="card">
+<h2 id="tituloMateriais">Materiais Brahma</h2>
+<div class="grid">
+<div>Mesa madeira ($570)<input type="number" id="mesaMadeira"></div>
+<div>Mesa plástico ($320)<input type="number" id="mesaPlastico"></div>
+<div>Ombrelone ($489)<input type="number" id="ombrelone"></div>
+<div>Luminoso ($680)<input type="number" id="luminoso"></div>
+<div>Cervegela ($10)<input type="number" id="cervegela"></div>
+<div>Balde ($85)<input type="number" id="balde"></div>
+</div>
+</div>
+
+<div class="card">
+<h2>Fachada</h2>
+<div class="grid">
+<div>Largura Fachada<input type="number" id="fachada"></div>
+<div>Largura Pintura<input type="number" id="pintura"></div>
+<div>Largura Toldo<input type="number" id="toldo"></div>
+<div>Largura Toldo Cortina<input type="number" id="toldoCortina"></div>
+<div>Luminoso Spot ($545)<input type="number" id="spot"></div>
+</div>
+
+<div id="campoFlange" class="hidden" style="margin-top:10px;">
+Flange (apenas Skol)
+<input type="number" id="flange">
+</div>
+</div>
+
+<button onclick="calcular()">Calcular</button>
+
+<div class="resultado" id="resultado"></div>
+
+</div>
+
+<script>
+
+/* ===== FUNÇÃO SEGURA PARA PEGAR NÚMERO ===== */
+function getNumber(id){
+    return Number(document.getElementById(id).value) || 0;
+}
+
+/* ===== TOGGLE FLANGE ===== */
+function toggleFlange(){
+let marca = document.querySelector('input[name="marca"]:checked').value;
+let campoFlange = document.getElementById("campoFlange");
+let titulo = document.getElementById("tituloMateriais");
+
+if (marca === "skol"){
+    campoFlange.classList.remove("hidden");
+    titulo.innerText = "Materiais Skol";
+}
+else if (marca === "bud"){
+    campoFlange.classList.add("hidden");
+    titulo.innerText = "Materiais Budweiser";
+}
+else{
+    campoFlange.classList.add("hidden");
+    titulo.innerText = "Materiais Brahma";
+}
+}
+
+/* ===== CALCULAR ===== */
+function calcular(){
+
+let mult = document.getElementById("mensal").checked ? 4 : 1;
+let marca = document.querySelector('input[name="marca"]:checked').value;
+
+/* ===== VALORES ===== */
+let valoresMateriais = {
+mesaMadeira: 570,
+mesaPlastico: 320,
+ombrelone: 480,
+luminoso: 680,
+cervegela: 10,
+balde: 85
+};
+
+let valoresFachada = {
+fachada: 500,
+pintura: 150,
+toldo: 415,
+toldoCortina: 500,
+spot: 545,
+maoObra: 3600
+};
+
+if (marca === "skol"){
+    valoresFachada.fachada = 900;
+    valoresFachada.flange = 1980;
+}
+
+if (marca === "bud"){
+    valoresMateriais = {
+        mesaMadeira: 640,
+        mesaPlastico: 470,
+        ombrelone: 760,
+        luminoso: 680,
+        cervegela: 35,
+        balde: 85
+    };
+
+    valoresFachada = {
+        fachada: 1400,
+        pintura: 275,
+        toldo: 415,
+        toldoCortina: 500,
+        spot: 545,
+        maoObra: 3600
+    };
+}
+
+/* ===== CÁLCULO hL CORRIGIDO ===== */
+let hL =
+(
+getNumber("cx600") * 0.144 +
+getNumber("cx1000") * 0.12 +
+getNumber("cx350") * 0.042 +
+getNumber("cx330") * 0.0792 +
+getNumber("cx300") * 0.069
+) * mult;
+
+let caixas600 = hL / 0.144;
+
+let valorCaixa = Number(document.querySelector('input[name="tipoPDV"]:checked').value);
+
+let investimento = caixas600 * 24 * valorCaixa;
+let metaMensal = investimento / 24 / valorCaixa;
+
+/* ===== MATERIAIS ===== */
+let mesaMadeira = getNumber("mesaMadeira") * valoresMateriais.mesaMadeira;
+let mesaPlastico = getNumber("mesaPlastico") * valoresMateriais.mesaPlastico;
+let ombrelone = getNumber("ombrelone") * valoresMateriais.ombrelone;
+let luminoso = getNumber("luminoso") * valoresMateriais.luminoso;
+let cervegela = getNumber("cervegela") * valoresMateriais.cervegela;
+let balde = getNumber("balde") * valoresMateriais.balde;
+
+let materiaisTotal = mesaMadeira + mesaPlastico + ombrelone + luminoso + cervegela + balde;
+
+/* ===== FACHADA ===== */
+let fachada = getNumber("fachada") * 1.5 * valoresFachada.fachada;
+let pintura = getNumber("pintura") * 3 * valoresFachada.pintura;
+let toldo = getNumber("toldo") * valoresFachada.toldo;
+let toldoCortina = getNumber("toldoCortina") * 2.5 * valoresFachada.toldoCortina;
+let spot = getNumber("spot") * valoresFachada.spot;
+
+let flangeTotal = 0;
+if (marca === "skol"){
+    flangeTotal = getNumber("flange") * valoresFachada.flange;
+}
+
+let fachadaTotal = valoresFachada.maoObra + fachada + pintura + toldo + toldoCortina + spot + flangeTotal;
+
+let pontos = investimento - materiaisTotal - fachadaTotal;
+
+/* ===== RESULTADO ===== */
+document.getElementById("resultado").innerHTML = `
+<h2>Resultado Final</h2>
+<b>Investimento Total:</b> R$ ${investimento.toFixed(2)} <br><br>
+<b>Meta mensal de caixas:</b> ${metaMensal.toFixed(2)} caixas <br><br>
+<b>Total Materiais:</b> R$ ${materiaisTotal.toFixed(2)}<br>
+<b>Total Fachada:</b> R$ ${fachadaTotal.toFixed(2)}<br><br>
+<h2>Valor pago em pontos: R$ ${pontos.toFixed(2)}</h2>
+`;
+
+}
+
+/* ===== CALCULO AUTOMÁTICO ===== */
+
+/*function ativarCalculoAutomatico(){
+
+    // pega TODOS os inputs da página
+    let inputs = document.querySelectorAll("input");
+
+    inputs.forEach(function(input){
+        input.addEventListener("input", calcular);
+        input.addEventListener("change", calcular);
+    });
+
+}
+
+// ativa quando a página carregar
+window.onload = function(){
+    toggleFlange();
+    ativarCalculoAutomatico();
+    calcular();
+};*/
+
+function calcularInvestimentoAutomatico(){
+
+    let mult = document.getElementById("mensal").checked ? 4 : 1;
+
+    let hL =
+    (
+    getNumber("cx600") * 0.144 +
+    getNumber("cx1000") * 0.12 +
+    getNumber("cx350") * 0.042 +
+    getNumber("cx330") * 0.0792 +
+    getNumber("cx300") * 0.069
+    ) * mult;
+
+    let caixas600 = hL / 0.144;
+
+    let valorCaixa = Number(document.querySelector('input[name="tipoPDV"]:checked').value);
+
+    let investimento = caixas600 * 24 * valorCaixa;
+
+    document.getElementById("investimentoTopo").innerHTML =
+    "Investimento Total: R$ " + investimento.toFixed(2);
+}
+
+function ativarAutoCalculo(){
+
+    let campos = [
+        "cx600","cx1000","cx350","cx330","cx300","mensal"
+    ];
+
+    campos.forEach(function(id){
+        document.getElementById(id)
+        .addEventListener("input", calcularInvestimentoAutomatico);
+        document.getElementById(id)
+        .addEventListener("change", calcularInvestimentoAutomatico);
+    });
+
+    // também quando trocar tipo de PDV
+    let radios = document.querySelectorAll('input[name="tipoPDV"]');
+    radios.forEach(function(radio){
+        radio.addEventListener("change", calcularInvestimentoAutomatico);
+    });
+
+}
+
+window.onload = function(){
+    ativarAutoCalculo();
+    calcularInvestimentoAutomatico();
+};
+
+</script>
+
+</body>
+</html>
